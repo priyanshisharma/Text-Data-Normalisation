@@ -1,10 +1,16 @@
 import pdftotext
 import pandas as pd
+from pathlib import Path
 
 dt = str() #This will contain our overall data
+p = Path('LinkedInProfiles/')
 
-for i in range(1,51):
-    with open(('LinkedInProfiles/'+str(i)+'.pdf'), 'rb') as pdf_file:
+for item in p.glob('*'): #Iterating through all the files in the path
+
+    if(str(item)=='LinkedInProfiles/.DS_Store'):
+        continue
+    
+    with open(str(item), 'rb') as pdf_file:
         pdf = pdftotext.PDF(pdf_file)
 
     lines = str() # This will contain each individual pdf
