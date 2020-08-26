@@ -1,10 +1,8 @@
 import pdftotext
 import pandas as pd
 from pathlib import Path
-import nltk.data
 import re
 
-tokenizer = nltk.data.load('english.pickle') 
 
 dt = str() #This will contain our overall data
 p = Path('LinkedInProfiles/')
