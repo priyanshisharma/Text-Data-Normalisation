@@ -4,7 +4,8 @@ from pathlib import Path
 import re
 
 
-dt = str() #This will contain our overall data
+tokenised_text = [] #This will contain our overall data
+all_lines = str()
 p = Path('LinkedInProfiles/')
 
 stop_words = [ 'ourselves', 'hers', 'between', 'yourself', 'but', 
@@ -30,18 +31,18 @@ for item in p.glob('*'): #Iterating through all the files in the path
     with open(str(item), 'rb') as pdf_file:
         pdf = pdftotext.PDF(pdf_file)
 
-    lines = str() # This will contain each individual pdf
+    pdf_lines = str() # This will contain each individual pdf
 
     for page in pdf:
-        lines += str(page)
+        pdf_lines += str(page)
     
-    filtered_sentence = str()
+    filtered_sentence = []
 
-    lines_temp = re.split('\W+', str(lines))
+    lines_temp = re.split('\W+', str(pdf_lines))
     
     for word in lines_temp:
         if word not in stop_words:
-            filtered_sentence += (str(str(word)+' '))
+            filtered_sentence.append(word)
     
     '''
     CHOICE OF DELIMITTER
@@ -49,9 +50,14 @@ for item in p.glob('*'): #Iterating through all the files in the path
     of someone using this at in between their LinkedIn profile, which could
     otherwise cause undesired separation.
     '''
-    dt += filtered_sentence + '$' #Add delimitter
+    all_lines += pdf_lines + '$' #Add delimitter
+    tokenised_text.append(filtered_sentence)  
 
 
-dt = dt.strip().split('$') #Split data to make a dataframe
-res = pd.DataFrame(dt)
-res.to_csv("task_3.csv")
+org_text = all_lines.strip().split('$') #Split data to make a dataframe
+res = pd.DataFrame()
+org_text.pop()
+res['Original Text'] = org_text
+res['Tokenised Text'] = tokenised_text
+
+res.to_csv("task.csv")
