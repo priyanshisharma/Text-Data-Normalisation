@@ -7,7 +7,12 @@ import string
 import operator
 import itertools 
 
-def Convert(tup): 
+'''
+Below are some functions required for tf-idf scoring
+'''
+
+def Convert(tup):
+    '''This function coverts a tuple to a dictionary'''
     di = dict()
     for a, b in tup: 
         di.setdefault(a, []).append(b) 
@@ -15,6 +20,7 @@ def Convert(tup):
 
 
 def computeTF(wordDict, bow):
+    '''This function returns the term frequency of the word'''
     tfDict = dict()
     bowCount = len(bow)
     for word,count in wordDict.items():
@@ -23,6 +29,8 @@ def computeTF(wordDict, bow):
     return tfDict
 
 def computeIDF(docList):
+    '''This function returns the inverse document
+    frequency of the word'''
     import math
     idfDict = dict()
     N = len(docList)
@@ -45,15 +53,13 @@ def computeIDF(docList):
     return idfDict
 
 def computeTFIDF(tfBow, idfs):
+    '''This function returns the tf-idf score'''
     tfidf = dict()
     for word, val in tfBow.items():
         tfidf[word] = val*idfs[word]
     return tfidf
 
-
-tokenised_text = [] 
-all_lines = str() #This will contain our overall data
-p = Path('LinkedInProfiles/')
+'''Creating stopwords'''
 
 stop_words = [ 'ourselves', 'hers', 'between', 'yourself', 'but', 
 'again', 'there', 'about', 'once', 'during', 'out', 'very', 
@@ -67,16 +73,23 @@ stop_words = [ 'ourselves', 'hers', 'between', 'yourself', 'but',
 'same', 'and', 'been', 'have', 'in', 'will', 'on', 'does', 'yourselves', 
 'then', 'that', 'because', 'what', 'over', 'why', 'so', 'can', 'did', 'not', 
 'now', 'under', 'he', 'you', 'herself', 'has', 'just', 'where', 'too', 'only', 
-'myself', 'which', 'those', 'i', 'after', 'few', 'whom', 't', 'being', 'if', 'theirs', 
-'my', 'against', 'a', 'by', 'doing', 'it', 'how', 'further', 'was', 'here', 'than', 'I', 'also', ' ']
+'myself', 'which', 'those', 'i', 'after', 'few', 'whom', 't', 'being', 'if', 
+'theirs', 'my', 'against', 'a', 'by', 'doing', 'it', 'how', 'further', 'was', 
+'here', 'than', 'I', 'also', ' ']
 
 for symbol in string.punctuation:
     stop_words.append(symbol)
 
-for num in range(100):
+for num in range(2030):
     stop_words.append(str(num))
 
+'''Other required data members'''
+tokenised_text = [] 
+all_lines = str() #This will contain our overall data
 
+p = Path('LinkedInProfiles/')
+
+'''Removing stopwords and tokenising'''
 for item in p.glob('*'): #Iterating through all the files in the path
 
     if(str(item)=='LinkedInProfiles/.DS_Store'):
@@ -108,7 +121,7 @@ for item in p.glob('*'): #Iterating through all the files in the path
     tokenised_text.append(filtered_sentence)  
 
 
-org_text = all_lines.strip().split('$') #Split data to make a dataframe
+org_text = all_lines.strip().split('$') #Split data to separate profiles
 org_text.pop() #removing final empty field that comes due to the '$' at end
 
 '''Finding top 10 most occuring words'''
@@ -117,25 +130,34 @@ for text in tokenised_text:
     most_occur = Counter(text).most_common(10)
     top_10_words_frequency.append(most_occur)
 
-_idfs_tokenised_text = []
+'''Finding tf-idf score'''
+
+_idfs_tokenised_text = [] #This shall contain the words and respective frequencies
+
+#Finding frequency of all elements of each document
 for text in tokenised_text:
     _idfs_tokenised_text.append(Convert(Counter(text).most_common()))
 
-idfs = computeIDF(_idfs_tokenised_text)
+#Compute total number of documents containing specific words
+idfs = computeIDF(_idfs_tokenised_text) 
 
 top_10_words_importance = []
 for text in tokenised_text:
-    count = Convert(Counter(text).most_common())
-    tf = computeTF(count,text)
-    tfidf =  computeTFIDF(tf,idfs)
+    count = Convert(Counter(text).most_common()) #Get frequency of word in text
+    tf = computeTF(count,text) #Get tf values for word
+    tfidf =  computeTFIDF(tf,idfs) #Get tf-idf value of word
+    # Sort the words in descending order of importance
     sorted_d = dict(sorted(tfidf.items(), key=operator.itemgetter(1),reverse=True))
+    #Retrieve the top 10 most important words
     most_important = dict(itertools.islice(sorted_d.items(), 10))
     top_10_words_importance.append(most_important)
 
+'''Create the dataframe to be converted to csv file'''
 res = pd.DataFrame()
 res['Original Text'] = org_text
 res['Tokenised Text'] = tokenised_text
 res['10 most occuring words and their frequency'] = top_10_words_frequency
 res['10 most important words and their tfidf score'] = top_10_words_importance
 
+'''Create the csv file'''
 res.to_csv("task.csv")
