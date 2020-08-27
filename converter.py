@@ -6,8 +6,8 @@ from collections import Counter
 import string 
 
 
-tokenised_text = [] #This will contain our overall data
-all_lines = str()
+tokenised_text = [] 
+all_lines = str() #This will contain our overall data
 p = Path('LinkedInProfiles/')
 
 stop_words = [ 'ourselves', 'hers', 'between', 'yourself', 'but', 
@@ -44,17 +44,14 @@ for item in p.glob('*'): #Iterating through all the files in the path
 
     for page in pdf:
         pdf_lines += str(page)
-    
+
+    lines_temp = re.split('\W+', str(pdf_lines)) #Tokenising
+       
     filtered_sentence = []
-
-    lines_temp = re.split('\W+', str(pdf_lines))
-
     for word in lines_temp:
-        if word not in stop_words:
+        if word not in stop_words: #Removing stop words
             filtered_sentence.append(word)
 
-    
-    
     '''
     CHOICE OF DELIMITTER
     I have used the dollar symbol assuming that there is a lesser chance
@@ -62,20 +59,22 @@ for item in p.glob('*'): #Iterating through all the files in the path
     otherwise cause undesired separation.
     '''
     all_lines += pdf_lines + '$' #Add delimitter
+    
     tokenised_text.append(filtered_sentence)  
 
 
 org_text = all_lines.strip().split('$') #Split data to make a dataframe
-res = pd.DataFrame()
-org_text.pop()
-res['Original Text'] = org_text
-res['Tokenised Text'] = tokenised_text
+org_text.pop() #removing final empty field that comes due to the '$' at end
 
+'''Finding top 10 most occuring words'''
 top_10_words = []
 for text in tokenised_text:
     most_occur = Counter(text).most_common(10)
     top_10_words.append(most_occur)
 
+res = pd.DataFrame()
+res['Original Text'] = org_text
+res['Tokenised Text'] = tokenised_text
 res['10 most occuring words and their frequency'] = top_10_words
 
 res.to_csv("task.csv")
