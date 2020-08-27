@@ -2,6 +2,8 @@ import pdftotext
 import pandas as pd
 from pathlib import Path
 import re
+from collections import Counter 
+import string 
 
 
 tokenised_text = [] #This will contain our overall data
@@ -21,7 +23,14 @@ stop_words = [ 'ourselves', 'hers', 'between', 'yourself', 'but',
 'then', 'that', 'because', 'what', 'over', 'why', 'so', 'can', 'did', 'not', 
 'now', 'under', 'he', 'you', 'herself', 'has', 'just', 'where', 'too', 'only', 
 'myself', 'which', 'those', 'i', 'after', 'few', 'whom', 't', 'being', 'if', 'theirs', 
-'my', 'against', 'a', 'by', 'doing', 'it', 'how', 'further', 'was', 'here', 'than']
+'my', 'against', 'a', 'by', 'doing', 'it', 'how', 'further', 'was', 'here', 'than', 'I', 'also']
+
+for symbol in string.punctuation:
+    stop_words.append(symbol)
+
+for num in range(100):
+    stop_words.append(str(num))
+
 
 for item in p.glob('*'): #Iterating through all the files in the path
 
@@ -39,10 +48,12 @@ for item in p.glob('*'): #Iterating through all the files in the path
     filtered_sentence = []
 
     lines_temp = re.split('\W+', str(pdf_lines))
-    
+
     for word in lines_temp:
         if word not in stop_words:
             filtered_sentence.append(word)
+
+    
     
     '''
     CHOICE OF DELIMITTER
@@ -59,5 +70,12 @@ res = pd.DataFrame()
 org_text.pop()
 res['Original Text'] = org_text
 res['Tokenised Text'] = tokenised_text
+
+top_10_words = []
+for text in tokenised_text:
+    most_occur = Counter(text).most_common(10)
+    top_10_words.append(most_occur)
+
+res['10 most occuring words and their frequency'] = top_10_words
 
 res.to_csv("task.csv")
