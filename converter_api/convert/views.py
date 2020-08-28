@@ -1,8 +1,8 @@
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from .serialisers import ConvertFileSerialiser, ConvertTextSerialiser
 from rest_framework.parsers import MultiPartParser
+from .serialisers import ConvertFileSerialiser, ConvertTextSerialiser
 
 class PdftoText(APIView):
 
@@ -31,5 +31,5 @@ class TexttoMostCommon(APIView):
             ret['most important words'] = serialiser.most_imp()
             return Response(ret, status.HTTP_200_OK)
 
-        data = serializer.errors
+        data = serialiser.errors
         return Response(data, status.HTTP_400_BAD_REQUEST)

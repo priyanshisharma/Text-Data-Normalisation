@@ -1,21 +1,27 @@
-from rest_framework import serializers
-import pdftotext
-import re
-from collections import Counter
-import string 
 import operator
 import itertools
+import re
+from collections import Counter
+from rest_framework import serializers
+import pdftotext
 from .calc_tf import stop_words, Convert,computeTF
 
 class ConvertFileSerialiser(serializers.Serializer):
+    '''
+    This serialiser takes pdf files as input and contains a
+    function to retrieve the text from it.
+    '''
     pdf_file = serializers.FileField()
 
     def conv(self):
+        '''This function returns the text in the pdf file'''
         valid_data = self.validated_data
         try:
             pdf = pdftotext.PDF(valid_data["pdf_file"])
         except:
-            raise serializers.ValidationError({"file_type":"Please enter file with '.pdf' extension"})
+            raise serializers.ValidationError(
+                {"file_type":"Please enter file with '.pdf' extension"}
+            )
 
         pdf_lines = str()
         for page in pdf:
@@ -25,9 +31,15 @@ class ConvertFileSerialiser(serializers.Serializer):
 
 
 class ConvertTextSerialiser(serializers.Serializer):
+    '''
+    This serialiser takes text as input and contains a
+    function to retrieve most frequent and important
+    words from it.
+    '''
     text = serializers.CharField()
 
     def most_occ(self):
+        '''This function returns the top 10 most occuring words'''
         valid_data = self.validated_data
         lines_temp = re.split('\W+', str(valid_data["text"])) #Tokenising
 
@@ -41,8 +53,9 @@ class ConvertTextSerialiser(serializers.Serializer):
 
         return most_occur
 
-    
+
     def most_imp(self):
+        '''This function returns the top 10 most important words'''
         valid_data = self.validated_data
 
         lines_temp = re.split('\W+', str(valid_data["text"])) #Tokenising
@@ -58,5 +71,3 @@ class ConvertTextSerialiser(serializers.Serializer):
         most_important = dict(itertools.islice(sorted_d.items(), 10))
 
         return most_important
-    
-
