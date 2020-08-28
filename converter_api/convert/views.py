@@ -16,7 +16,7 @@ class PdftoText(APIView):
             ret['text'] = serialiser.conv()
             return Response(ret, status.HTTP_200_OK)
 
-        data = serializer.errors
+        data = serialiser.errors
         return Response(data, status.HTTP_400_BAD_REQUEST)
 
 
