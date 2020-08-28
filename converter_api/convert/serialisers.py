@@ -4,7 +4,7 @@ import re
 from collections import Counter
 from rest_framework import serializers
 import pdftotext
-from .calc_tf import stop_words, Convert,computeTF
+from .calc_tf import stop_words, Convert,computeTF, computeTFIDF, idfs
 
 class ConvertFileSerialiser(serializers.Serializer):
     '''
@@ -67,7 +67,8 @@ class ConvertTextSerialiser(serializers.Serializer):
 
         count = Convert(Counter(filtered_sentence).most_common())
         tf = computeTF(count,filtered_sentence)
-        sorted_d = dict(sorted(tf.items(), key=operator.itemgetter(1),reverse=True))
+        tfidf = computeTFIDF(tf, idfs)
+        sorted_d = dict(sorted(tfidf.items(), key=operator.itemgetter(1),reverse=True))
         most_important = dict(itertools.islice(sorted_d.items(), 10))
 
         return most_important
