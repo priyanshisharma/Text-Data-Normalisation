@@ -25,9 +25,4 @@ Run `python manage.py runserver` to use it in your local server. Make sure you h
 
 * At `'pdf_to_text/'` there exists the api which takes `pdf_file` in the input and returns the `text` within it as output.
 * At `'text_to_info/'` there exists the api which takes `text` as input and returns **the top 10 most frequent** words, and **the top 10 most important words** in that piece of text.
-
-For important words I have used only **term frequency** i.e. (total occurences of the word/total words) and not **inverse document frequency**. The reason for doing the same is that;
-* Term Frequency - Local Importance
-* Inverse Document Frequency - Global Importance
-
-Since, the text is not necessarily a part of a set of documents, its "global importance" becomes less relevant (not much to compare with), hence I am using term-frequency only.
+I have used *tf-idf* for the same, calculating idf with respect to data collected in Task-3.
